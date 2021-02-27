@@ -227,16 +227,17 @@ def create_venue_form():
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  form = VenueForm(request.form)
   error = False
   body = {}
   try:
-    name = request.form.get('name')
-    city = request.form.get('city')
-    state = request.form.get('state')
-    address = request.form.get('address')
-    phone = request.form.get('phone')
-    genres = request.form.get('genres')
-    facebook_link = request.form.get('facebook_link')
+    name = form.name.data
+    city = form.city.data
+    state = form.state.data
+    address = form.address.data
+    phone = form.phone.data
+    genres = form.genres.data
+    facebook_link = form.facebook_link.data
     venue = Venue(
       name=name,
       city=city,
@@ -452,15 +453,16 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  form = ArtistForm(request.form)
   error = False
   body = {}
   try:
-    name = request.form.get('name')
-    city = request.form.get('city')
-    state = request.form.get('state')
-    phone = request.form.get('phone')
-    genres = request.form.get('genres')
-    facebook_link = request.form.get('facebook_link')
+    name = form.name.data
+    city = form.city.data
+    state = form.state.data
+    phone = form.phone.data
+    genres = form.genres.data
+    facebook_link = form.facebook_link.data
     artist = Artist(
       name=name,
       city=city,
