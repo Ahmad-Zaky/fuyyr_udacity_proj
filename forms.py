@@ -83,6 +83,7 @@ class VenueForm(FlaskForm):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
+        # TODO implement validation logic for state
         'phone'
     )
     image_link = StringField(
