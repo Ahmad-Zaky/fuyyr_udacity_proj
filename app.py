@@ -460,7 +460,7 @@ def create_artist_submission():
   error = False
   body = {}
   try:
-    if form.validate_on_submit():
+    if form.validate():
       name = form.name.data
       city = form.city.data
       state = form.state.data
