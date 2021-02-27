@@ -260,13 +260,13 @@ def create_venue_submission():
     db.session.close() 
     
   if error:
-     # TODO: on unsuccessful db insert, flash an error instead.
+    # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
   else:
     # on successful db insert, flash success
-    flash('Venue ' + venue.name + ' was successfully listed!')
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
 
   return render_template('pages/home.html')
 
@@ -492,7 +492,7 @@ def create_artist_submission():
     flash('An error occurred. Artist ' + request.form['name'] + ' could not be listed.')
   else:
     # on successful db insert, flash success
-    flash('Artist ' + artist.name + ' was successfully listed!')
+    flash('Artist ' + request.form['name'] + ' was successfully listed!')
 
   return render_template('pages/home.html')
 
