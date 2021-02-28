@@ -13,7 +13,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
-import sys
+import sys, traceback
 from re import error
 
 #----------------------------------------------------------------------------#
@@ -238,6 +238,7 @@ def create_venue_submission():
       address = form.address.data
       phone = form.phone.data
       genres = form.genres.data
+      image_link = form.image_link.data
       facebook_link = form.facebook_link.data
       venue = Venue(
         name=name,
@@ -246,6 +247,7 @@ def create_venue_submission():
         address=address,
         phone=phone,
         genres=genres,
+        image_link=image_link,
         facebook_link=facebook_link
       )
       db.session.add(venue)
@@ -256,6 +258,9 @@ def create_venue_submission():
     error = True
     db.session.rollback()
     print(sys.exc_info())
+    print("-"*60)
+    traceback.print_exc(file=sys.stdout)
+    print("-"*60)
   finally:
     db.session.close() 
     
@@ -483,6 +488,9 @@ def create_artist_submission():
     error = True
     db.session.rollback()
     print(sys.exc_info())
+    print("-"*60)
+    traceback.print_exc(file=sys.stdout)
+    print("-"*60)
   finally:
     db.session.close()
 
