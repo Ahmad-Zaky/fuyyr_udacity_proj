@@ -471,6 +471,7 @@ def create_artist_submission():
       state = form.state.data
       phone = form.phone.data
       genres = form.genres.data
+      image_link = form.image_link.data
       facebook_link = form.facebook_link.data
       artist = Artist(
         name=name,
@@ -478,6 +479,7 @@ def create_artist_submission():
         state=state,
         phone=phone,
         genres=genres,
+        image_link=image_link,
         facebook_link=facebook_link
         )
       db.session.add(artist)
