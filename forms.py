@@ -122,11 +122,11 @@ class VenueForm(FlaskForm):
 
     def validate_phone(self, phone):
         try:
-            p = phonenumbers.parse(phone, 'US')
+            p = phonenumbers.parse(phone.data, 'US')
             if not phonenumbers.is_valid_number(p):
                 raise ValueError()        
         except (ValueError):
-            raise ValidationError('Invalid phone number')
+            raise ValidationError('Invalid US phone number')
 
 
 class ArtistForm(FlaskForm):
@@ -231,10 +231,10 @@ class ArtistForm(FlaskForm):
 
     def validate_phone(self, phone):
         try:
-            p = phonenumbers.parse(phone, 'US')
+            p = phonenumbers.parse(phone.data, 'US')
             if not phonenumbers.is_valid_number(p):
                 raise ValueError()        
         except (ValueError):
-            raise ValidationError('Invalid phone number')
+            raise ValidationError('Invalid US phone number')
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
