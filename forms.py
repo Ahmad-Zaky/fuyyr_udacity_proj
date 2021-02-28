@@ -1,7 +1,9 @@
 from datetime import datetime
+from flask.helpers import flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, ValidationError
 from wtforms.validators import DataRequired, AnyOf, URL
+import phonenumbers
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
@@ -87,7 +89,7 @@ class VenueForm(FlaskForm):
         'phone'
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[URL()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -117,6 +119,15 @@ class VenueForm(FlaskForm):
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
     )
+
+    def validate_phone(self, phone):
+        try:
+            p = phonenumbers.parse(phone, 'US')
+            if not phonenumbers.is_valid_number(p):
+                raise ValueError()        
+        except (ValueError):
+            raise ValidationError('Invalid phone number')
+
 
 class ArtistForm(FlaskForm):
     name = StringField(
@@ -217,5 +228,13 @@ class ArtistForm(FlaskForm):
         # TODO implement enum restriction
         'facebook_link', validators=[URL()]
     )
+
+    def validate_phone(self, phone):
+        try:
+            p = phonenumbers.parse(phone, 'US')
+            if not phonenumbers.is_valid_number(p):
+                raise ValueError()        
+        except (ValueError):
+            raise ValidationError('Invalid phone number')
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
