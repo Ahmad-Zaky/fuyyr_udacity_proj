@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime as d
 from flask.helpers import flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, ValidationError
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, ValidationError, BooleanField
 from wtforms.validators import DataRequired, AnyOf, URL
 import phonenumbers
 
@@ -15,8 +15,14 @@ class ShowForm(FlaskForm):
     start_time = DateTimeField(
         'start_time',
         validators=[DataRequired()],
-        default= datetime.today()
+        default= d.now()
     )
+    def validate_start_time(self, start_time):
+        try:
+            if start_time.data < d.datetime.now():
+                raise ValueError()
+        except (ValueError):
+            raise ValidationError("The date cannot be in the past!")  
 
 class VenueForm(FlaskForm):
     name = StringField(
@@ -88,9 +94,6 @@ class VenueForm(FlaskForm):
         # TODO implement validation logic for state
         'phone'
     )
-    image_link = StringField(
-        'image_link', validators=[URL()]
-    )
     genres = SelectMultipleField(
         # TODO implement enum restriction
         'genres', validators=[DataRequired()],
@@ -116,10 +119,17 @@ class VenueForm(FlaskForm):
             ('Other', 'Other'),
         ]
     )
+    website = StringField('website', validators=[DataRequired()])
+    seeking_talent = BooleanField('seeking_talent', id="seeking_talent")
+    seeking_description = StringField('seeking_description', id="seeking_description")
+    image_link = StringField(
+        'image_link', validators=[URL()]
+    )
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
     )
 
+    # TODO implement validation logic for state
     def validate_phone(self, phone):
         try:
             p = phonenumbers.parse(phone.data, 'US')
@@ -238,3 +248,22 @@ class ArtistForm(FlaskForm):
             raise ValidationError('Invalid US phone number')
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
+
+# My OWN Version of ShowForm
+# class ShowForm(FlaskForm):
+#     venues = SelectMultipleField(
+#         'venues', validators=[DataRequired()],
+#     )
+#     artists = SelectMultipleField(
+#         'artists', validators=[DataRequired()],
+#     )
+#     start_time = DateTimeField(
+#         'start_time', validators=[DataRequired()],
+#     )
+
+#     def validate_start_time(self, start_time):
+#         try:
+#             if start_time.data < d.now():
+#                 raise ValueError()
+#         except (ValueError):
+#             raise ValidationError("The date cannot be in the past!")  

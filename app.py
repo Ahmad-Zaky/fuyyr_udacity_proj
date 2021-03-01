@@ -40,8 +40,9 @@ class Show(db.Model):
   venue_id = db.Column(db.Integer, ForeignKey('venues.id'), primary_key=True)
   artist_id = db.Column(db.Integer, ForeignKey('artists.id'), primary_key=True)
   start_time  = db.Column(db.DateTime, server_default=db.func.now())
-  venue = db.relationship("Venue", back_populates="venues")
-  artist = db.relationship("Artist", back_populates="artists")
+
+  venue = db.relationship("Venue", backref="artist_shows")
+  artist = db.relationship("Artist", backref="venue_shows")
 
   def __repr__(self):
     return f'<Show Venue ID: {self.venue_id}, Artist ID: {self.artist_id}>'
@@ -57,13 +58,19 @@ class Venue(db.Model):
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    website = db.Column(db.String(500))
+    seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.Text)
     facebook_link = db.Column(db.String(120))
+    image_link = db.Column(db.String(500))
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
     created_time  = db.Column(db.DateTime, server_default=db.func.now())
     modified_time = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
+    artists = db.relationship("Artist", secondary="shows")
+
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    
     def __repr__(self):
       return f'<Venue ID: {self.id}, Name: {self.name}>'
 
@@ -76,12 +83,16 @@ class Artist(db.Model):
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    website = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.Text)
+    image_link = db.Column(db.String(500))
+    
     created_time  = db.Column(db.DateTime, server_default=db.func.now())
     modified_time = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
     def __repr__(self):
       return f'<Artist ID: {self.id}, Name: {self.name}>'
@@ -263,6 +274,9 @@ def create_venue_submission():
       address = form.address.data
       phone = form.phone.data
       genres = form.genres.data
+      website = form.website.data 
+      seeking_talent = form.seeking_talent.data
+      seeking_description = form.seeking_description.data
       image_link = form.image_link.data
       facebook_link = form.facebook_link.data
       venue = Venue(
@@ -272,6 +286,9 @@ def create_venue_submission():
         address=address,
         phone=phone,
         genres=genres,
+        website=website,
+        seeking_talent=seeking_talent,
+        seeking_description=seeking_description,
         image_link=image_link,
         facebook_link=facebook_link
       )
