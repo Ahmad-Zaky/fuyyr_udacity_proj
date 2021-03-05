@@ -13,6 +13,8 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import backref
+from sqlalchemy.exc import IntegrityError
+from psycopg2.errors import UniqueViolation
 from forms import *
 from flask_migrate import Migrate
 import sys, traceback
@@ -513,16 +515,22 @@ def create_artist_submission():
       state = form.state.data
       phone = form.phone.data
       genres = form.genres.data
-      image_link = form.image_link.data
+      website = form.website.data 
       facebook_link = form.facebook_link.data
+      seeking_venue = form.seeking_venue.data
+      seeking_description = form.seeking_description.data
+      image_link = form.image_link.data
       artist = Artist(
         name=name,
         city=city,
         state=state,
         phone=phone,
         genres=genres,
-        image_link=image_link,
-        facebook_link=facebook_link
+        website=website,
+        facebook_link=facebook_link,
+        seeking_venue=seeking_venue,
+        seeking_description=seeking_description,
+        image_link=image_link
         )
       db.session.add(artist)
       db.session.commit()
@@ -605,11 +613,55 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
+  form = ShowForm(request.form)
 
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
+  error = False
+  body = {}
+  try:
+    if form.validate():
+
+      venue_id = form.venue_id.data
+      artist_id = form.artist_id.data
+      start_time = form.start_time.data
+
+
+      # Check if venue_id, artist_id exists
+      artist = Artist.query.get(artist_id)
+      venue = Venue.query.get(venue_id)
+
+      if venue and artist:
+        show = Show(
+          venue_id=venue_id,
+          artist_id=artist_id,
+          start_time=start_time
+          )
+        db.session.add(show)
+        db.session.commit()
+      else:
+        return render_template('forms/new_show.html', form=form)
+    else:
+      return render_template('forms/new_show.html', form=form)
+  except (IntegrityError) as e:
+    error = True
+    db.session.rollback()
+    flash('The show already exists.')
+    return render_template('forms/new_show.html', form=form)
+  except (Exception) as e:
+    error = True
+    print(sys.exc_info())
+    print("-"*60)
+    traceback.print_exc(file=sys.stdout)
+    print("-"*60)
+  finally:
+    db.session.close()
+
+  if error:
+    # TODO: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Show could not be listed.')
+    flash('An error occurred. Show could not be listed.')
+  else:
+    # on successful db insert, flash success
+    flash('Show was successfully listed!')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 

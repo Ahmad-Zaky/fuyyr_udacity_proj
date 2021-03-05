@@ -1,28 +1,57 @@
-from datetime import datetime as d
+from datetime import date, datetime
+from typing import ValuesView
 from flask.helpers import flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, ValidationError, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms.validators import DataRequired, AnyOf, URL, Regexp
 import phonenumbers
+import re
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
-        'artist_id'
+        'artist_id',
+        validators=[DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id',
+        validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
-        validators=[DataRequired()],
-        default= d.now()
+        format="%Y-%m-%d %H:%M",
+        default= datetime.now()        
     )
-    def validate_start_time(self, start_time):
+
+    def validate_artist_id(self, artist_id):
         try:
-            if start_time.data < d.datetime.now():
+            match = re.search(r'^\d+$', artist_id.data)
+            if not match:
                 raise ValueError()
         except (ValueError):
-            raise ValidationError("The date cannot be in the past!")  
+            raise ValidationError("The artist id should be a number!")  
+
+    def validate_venue_id(self, venue_id):
+        try:
+            match = re.search(r'^\d+$', venue_id.data)
+            if not match:
+                raise ValueError()
+        except (ValueError):
+            raise ValidationError("The venue id should be a number!")  
+
+
+    def validate_start_time(self, start_time):
+        try:
+            startTime = ''
+            if start_time.data is not None:
+                startTime = start_time.data.strftime("%Y-%m-%d %H:%M")
+
+            match = re.search(r"^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[01]) (2[0-3]|[01][0-9]):[0-5][0-9]$", startTime)
+            if not match:
+                raise ValueError("Date Fromat should be YYYY-MM-DD HH:MM")            
+            elif start_time.data < datetime.now():
+                raise ValueError("The date should be a future date!")
+        except (ValueError) as e:
+            raise ValidationError(e)
 
 class VenueForm(FlaskForm):
     name = StringField(
@@ -119,9 +148,15 @@ class VenueForm(FlaskForm):
             ('Other', 'Other'),
         ]
     )
-    website = StringField('website', validators=[DataRequired()])
-    seeking_talent = BooleanField('seeking_talent', id="seeking_talent")
-    seeking_description = StringField('seeking_description', id="seeking_description")
+    website = StringField(
+        'website', validators=[DataRequired()]
+    )
+    seeking_talent = BooleanField(
+        'seeking_talent', id="seeking_talent"
+    )
+    seeking_description = StringField(
+        'seeking_description', id="seeking_description"
+    )
     image_link = StringField(
         'image_link', validators=[URL()]
     )
@@ -206,6 +241,15 @@ class ArtistForm(FlaskForm):
         # TODO implement validation logic for state
         'phone'
     )
+    website = StringField(
+        'website', validators=[DataRequired()]
+    )
+    seeking_venue = BooleanField(
+        'seeking_venue', id="seeking_venue"
+    )
+    seeking_description = StringField(
+        'seeking_description', id="seeking_description"
+    )
     image_link = StringField(
         'image_link'
     )
@@ -263,7 +307,7 @@ class ArtistForm(FlaskForm):
 
 #     def validate_start_time(self, start_time):
 #         try:
-#             if start_time.data < d.now():
+#             if start_time.data < datetime.now():
 #                 raise ValueError()
 #         except (ValueError):
 #             raise ValidationError("The date cannot be in the past!")  
