@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime as d
 from typing import ValuesView
 from flask.helpers import flash
 from flask_wtf import FlaskForm
@@ -19,7 +19,7 @@ class ShowForm(FlaskForm):
     start_time = DateTimeField(
         'start_time',
         format="%Y-%m-%d %H:%M",
-        default= datetime.now()        
+        default= d.now()        
     )
 
     def validate_artist_id(self, artist_id):
@@ -48,7 +48,7 @@ class ShowForm(FlaskForm):
             match = re.search(r"^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[01]) (2[0-3]|[01][0-9]):[0-5][0-9]$", startTime)
             if not match:
                 raise ValueError("Date Fromat should be YYYY-MM-DD HH:MM")            
-            elif start_time.data < datetime.now():
+            elif start_time.data < d.now():
                 raise ValueError("The date should be a future date!")
         except (ValueError) as e:
             raise ValidationError(e)
@@ -307,7 +307,7 @@ class ArtistForm(FlaskForm):
 
 #     def validate_start_time(self, start_time):
 #         try:
-#             if start_time.data < datetime.now():
+#             if start_time.data < d.now():
 #                 raise ValueError()
 #         except (ValueError):
 #             raise ValidationError("The date cannot be in the past!")  
