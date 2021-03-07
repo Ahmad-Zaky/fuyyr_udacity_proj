@@ -2,37 +2,109 @@
 {% block title %}Edit Artist{% endblock %}
 {% block content %}
   <div class="form-wrapper">
+    {% from "forms/_formhelpers.html" import render_field_error %}
     <form class="form" method="post" action="/artists/{{artist.id}}/edit">
+    {{ form.csrf_token }}
       <h3 class="form-heading">Edit artist <em>{{ artist.name }}</em></h3>
       <div class="form-group">
         <label for="name">Name</label>
-        {{ form.name(class_ = 'form-control', autofocus = true) }}
+        {{ form.name(class_ = 'form-control', autofocus = true, value=artist.name) }}
+        {{render_field_error(form.name.errors)}}
       </div>
       <div class="form-group">
           <label>City & State</label>
           <div class="form-inline">
             <div class="form-group">
-              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true) }}
+              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true, value=artist.city) }}
+              {{render_field_error(form.city.errors)}}            
             </div>
             <div class="form-group">
-              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true) }}
+              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true, value=artist.state) }}
+              {{render_field_error(form.state.errors)}}
             </div>
           </div>
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true, value=artist.phone) }}
+          {{render_field_error(form.phone.errors)}}
         </div>
       <div class="form-group">
         <label for="genres">Genres</label>
         <small>Ctrl+Click to select multiple</small>
+        <input hidden id="artist_genres" value="{{ artist.genres }}" />
         {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas',  autofocus = true) }}
+        {{render_field_error(form.genres.errors)}}
+      </div>
+      <div class="form-group">
+        <label for="website">Website</label>
+        {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true, value=artist.website) }}
+        {{render_field_error(form.website.errors)}}
+      </div>
+      <div class="form-check form-check-inline">
+        <input hidden id="artist_seeking_venue" value="{{ artist.seeking_venue }}" />
+        {{ form.seeking_venue(class_ = 'form-check-input', placeholder='http://', autofocus = true) }}
+        {{render_field_error(form.seeking_venue.errors)}}
+        <label for="seeking_venue">Seeking Venue</label>
+      </div>
+      <div class="form-group">
+        <label for="seeking_description">Seeking Description</label>
+        {{ form.seeking_description(class_ = 'form-control', autofocus = true, value=artist.seeking_description) }}
+        {{render_field_error(form.seeking_description.errors)}}
+      </div>
+      <div class="form-group">
+        <label for="image_link">Image Link</label>
+        {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true,  value=artist.image_link) }}
+        {{render_field_error(form.image_link.errors)}}
       </div>
       <div class="form-group">
           <label for="genres">Facebook Link</label>
-          {{ form.facebook_link(class_ = 'form-control', placeholder='http://',  autofocus = true) }}
+          {{ form.facebook_link(class_ = 'form-control', placeholder='http://',  autofocus = true, value=artist.facebook_link) }}
+          {{render_field_error(form.facebook_link.errors)}}
         </div>
       <input type="submit" value="Edit Artist" class="btn btn-primary btn-lg btn-block">
     </form>
   </div>
+  <script>
+
+    // Set the Genres Selected Options
+    var genres = document.getElementById('artist_genres').value
+    genres = JSON.parse(genres)
+    genres = genres.substring(1,genres.length-1).replaceAll("\"","").split(',')
+    
+    genresOptions = document.querySelectorAll('#genres option')
+    genresOptions.forEach( option => {
+      if (genres.indexOf(option.value) !== -1)
+        option.setAttribute('selected', true)
+      else
+        option.removeAttribute('selected')
+    })
+
+    
+    // Set Seeking talent Checkbox
+    const artist_seeking_venue = document.getElementById('artist_seeking_venue').value
+    var seeking_venue = document.getElementById('seeking_venue')
+    if (artist_seeking_venue == 'True')
+      seeking_venue.setAttribute('checked', true)
+    else
+      seeking_venue.removeAttribute('checked', false)
+
+
+    /*** Hide/Show Toggling for Seeking Description based on Seeking venue checkbox ***/
+    showDescription(seeking_venue.checked)    
+    seeking_venue.addEventListener('change', function () {
+      showDescription(this.checked)      
+    })
+
+    function showDescription(status) {
+      if (status) {
+        document.getElementById('seeking_description').required = true
+        document.getElementById('seeking_description').closest('div').style.display = 'block'
+      } else {
+        document.getElementById('seeking_description').value = ''
+        document.getElementById('seeking_description').required = false
+        document.getElementById('seeking_description').closest('div').style.display = 'none'
+      }
+    }
+  </script>
 {% endblock %}

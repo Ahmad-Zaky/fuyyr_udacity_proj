@@ -2,41 +2,114 @@
 {% block title %}Edit Venue{% endblock %}
 {% block content %}
   <div class="form-wrapper">
+    {% from "forms/_formhelpers.html" import render_field_error %}
     <form class="form" method="post" action="/venues/{{venue.id}}/edit">
+      {{ form.csrf_token }}
       <h3 class="form-heading">Edit venue <em>{{ venue.name }}</em> <a href="{{ url_for('index') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
       <div class="form-group">
         <label for="name">Name</label>
-        {{ form.name(class_ = 'form-control', autofocus = true) }}
+        {{ form.name(class_ = 'form-control', autofocus = true, value=venue.name) }}
+        {{render_field_error(form.name.errors)}}
       </div>
       <div class="form-group">
           <label>City & State</label>
           <div class="form-inline">
             <div class="form-group">
-              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true) }}
+              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true, value=venue.city) }}
+              {{render_field_error(form.city.errors)}}            
             </div>
             <div class="form-group">
-              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true) }}
+              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true, value=venue.state) }}
+              {{render_field_error(form.state.errors)}}              
             </div>
           </div>
       </div>
       <div class="form-group">
         <label for="address">Address</label>
-        {{ form.address(class_ = 'form-control', autofocus = true) }}
+        {{ form.address(class_ = 'form-control', autofocus = true, value=venue.address) }}
+        {{render_field_error(form.address.errors)}}
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true, value=venue.phone) }}
+          {{render_field_error(form.phone.errors)}}
         </div>
       <div class="form-group">
         <label for="genres">Genres</label>
         <small>Ctrl+Click to select multiple</small>
+        <input hidden id="venue_genres" value="{{ venue.genres }}" />
         {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas',  autofocus = true) }}
+        {{render_field_error(form.genres.errors)}}
+      </div>
+      <div class="form-group">
+        <label for="website">Website</label>
+        {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true, value=venue.website) }}
+        {{render_field_error(form.website.errors)}}
+      </div>
+      <div class="form-check form-check-inline">
+        <input hidden id="venue_seeking_talent" value="{{ venue.seeking_talent }}" />
+        {{ form.seeking_talent(class_ = 'form-check-input', placeholder='http://', autofocus = true) }}
+        {{render_field_error(form.seeking_talent.errors)}}
+        <label for="seeking_talent">Seeking Talent</label>
+      </div>
+      <div class="form-group">
+        <label for="seeking_description">Seeking Description</label>
+        {{ form.seeking_description(class_ = 'form-control', autofocus = true, value=venue.seeking_description) }}
+        {{render_field_error(form.seeking_description.errors)}}
+      </div>
+      <div class="form-group">
+        <label for="image_link">Image Link</label>
+        {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true,  value=venue.image_link) }}
+        {{render_field_error(form.image_link.errors)}}
       </div>
       <div class="form-group">
           <label for="genres">Facebook Link</label>
-          {{ form.facebook_link(class_ = 'form-control', placeholder='http://',  autofocus = true) }}
+          {{ form.facebook_link(class_ = 'form-control', placeholder='http://',  autofocus = true, value=venue.facebook_link) }}
+          {{render_field_error(form.facebook_link.errors)}}
         </div>
       <input type="submit" value="Edit Venue" class="btn btn-primary btn-lg btn-block">
     </form>
   </div>
+  <script>
+
+    // Set the Genres Selected Options
+    var genres = document.getElementById('venue_genres').value
+    genres = JSON.parse(genres)
+    genres = genres.substring(1,genres.length-1).replaceAll("\"","").split(',')
+    
+    genresOptions = document.querySelectorAll('#genres option')
+    genresOptions.forEach( option => {
+      if (genres.indexOf(option.value) !== -1)
+        option.setAttribute('selected', true)
+      else
+        option.removeAttribute('selected')
+    })
+
+
+    // Set Seeking talent Checkbox
+    const venue_seeking_talent = document.getElementById('venue_seeking_talent').value
+    var seeking_talent = document.getElementById('seeking_talent')
+    if (venue_seeking_talent == 'True')
+      seeking_talent.setAttribute('checked', true)
+    else
+      seeking_talent.removeAttribute('checked')
+
+
+    /*** Hide/Show Toggling for Seeking Description based on Seeking talent checkbox ***/
+    showDescription(seeking_talent.checked)    
+    seeking_talent.addEventListener('change', function () {
+      showDescription(this.checked)      
+    })
+
+    function showDescription(status) {
+      if (status) {
+        document.getElementById('seeking_description').required = true
+        document.getElementById('seeking_description').closest('div').style.display = 'block'
+      } else {
+        document.getElementById('seeking_description').value = ''
+        document.getElementById('seeking_description').required = false
+        document.getElementById('seeking_description').closest('div').style.display = 'none'
+      }
+    }
+  </script>
 {% endblock %}
