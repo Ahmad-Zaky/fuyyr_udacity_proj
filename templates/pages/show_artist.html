@@ -3,6 +3,43 @@
 {% block content %}
 <div class="row">
 	<div class="col-sm-6">
+		<style>
+			.hidden {
+				display: none;
+			}
+
+			a.edit-artist:link, a.edit-artist:visited {
+				background-color: white;
+				color: black;
+				border: 2px solid #ff8c3a;
+				padding: 5px 30px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+			}
+			
+			a.edit-artist:hover, a.edit-artist:active {
+				background-color: #ffffc6;
+			}
+
+			button#delete-artist {
+				background-color: #ff8c3a;
+				color: white;
+				border: 2px solid #ff8c3a;
+				padding: 5px 30px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+			}
+			
+			button#delete-artist:hover, button#delete-artist:active {
+				background-color: #ffffc6;
+				color: black;
+			}
+		</style>
+		<a class="edit-artist" href="artists/{{ artist.id }}/edit">Edit artist</a>
+		<button id="delete-artist" data-id="{{ artist.id }}" onclick="deleteArtist()">Delete artist</button>
+    <div id="artist-error" class="hidden">Something went wrong!</div>
 		<h1 class="monospace">
 			{{ artist.name }}
 		</h1>
@@ -71,6 +108,37 @@
 		{% endfor %}
 	</div>
 </section>
+<script>
+	function deleteArtist() {
+		id = 0
+		var result = confirm("Are you sure to delete?")
+    if (result) {
+			// Delete logic goes here
+			artist_id = document.getElementById('delete-artist').getAttribute('data-id')
+			if (artist_id) {
+				fetch('/artists/'+artist_id, {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				})
+				.then( function (response) {
+					document.getElementById('artist-error').className = 'hidden'
 
+					response.json().then( function (response) {
+						console.log(response)
+						if (response.success)
+							window.location.href = "/"
+						else
+							window.location.reload
+					})
+				})
+				.catch( function () {
+					document.getElementById('artist-error').className = ''
+				})
+			}
+    }
+	}
+</script>
 {% endblock %}
 

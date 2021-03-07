@@ -5,7 +5,7 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 import logging
 from logging import Formatter, FileHandler
@@ -103,7 +103,7 @@ def show_venue(venue_id):
   venue = Venue.query.get(venue_id)
   shows = Show.query.filter_by(venue_id=venue_id).all()
 
-  if venue and shows:
+  if venue or shows:
     postShows = [ {
       'artist_id': show.artist.id,
       'artist_name': show.artist.name,
@@ -278,7 +278,37 @@ def delete_venue(venue_id):
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+  error = False
+  message = ''
+  try:
+    venue = Venue.query.get(venue_id)
+    shows = Show.query.filter_by(venue_id=venue_id).all()
+    if venue or shows:
+      for show in shows:
+        db.session.delete(show)
+
+      db.session.delete(venue)
+      db.session.commit()
+    else:
+      error = True
+      message = "Venue with ID ("+str(venue_id)+") is not found!"
+      flash(message)
+      return jsonify({'success': error, 'message': message})
+  except (Exception) as e:
+    db.session.rollback()
+    error=True
+    print(sys.exc_info())
+  finally:
+    db.session.close()    
+    
+  if error:
+    message = 'An error occurred. Venue: ' + venue.name + ' could not be deleted.'
+    flash(message)
+  else:
+    message = 'Venue: ' + venue.name + ' was successfully deleted!'
+    flash(message)
+  return jsonify({'success': not error, 'message':message})
+
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -317,7 +347,7 @@ def show_artist(artist_id):
   artist = Artist.query.get(artist_id)
   shows = Show.query.filter_by(artist_id=artist_id).all()
 
-  if artist and shows:
+  if artist or shows:
     postShows = [ {
       'venue_id': show.venue.id,
       'venue_name': show.venue.name,
@@ -487,7 +517,37 @@ def delete_artist(artist_id):
 
   # BONUS CHALLENGE: Implement a button to delete a Artist on a Artist Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+  error = False
+  message = ''
+  try:
+    artist = Artist.query.get(artist_id)
+    shows = Show.query.filter_by(artist_id=artist_id).all()
+    if artist or shows:
+      for show in shows:
+        print('here')
+        db.session.delete(show)
+
+      db.session.delete(artist)
+      db.session.commit()
+    else:
+      error = True
+      message = "Artist with ID ("+str(artist_id)+") is not found!"
+      flash(message)
+      return jsonify({'success': error, 'message': message})
+  except (Exception) as e:
+    # db.session.rollback()
+    error=True
+    print(sys.exc_info())
+  # finally:
+    # db.session.close()    
+    
+  if error:
+    message = 'An error occurred. Artist: ' + artist.name + ' could not be deleted.'
+    flash(message)
+  else:
+    message = 'Artist: ' + artist.name + ' was successfully deleted!'
+    flash(message)
+  return jsonify({'success': not error, 'message':message})
 
 
 #  Shows
