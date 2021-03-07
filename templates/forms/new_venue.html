@@ -1,7 +1,7 @@
 {% extends 'layouts/main.html' %} {% block title %}New Venue{% endblock %} {%
   block content %}
   <div class="form-wrapper">
-    {% from "forms/_formhelpers.html" import render_field_error %}
+    {% from "forms/error_msg_handler.html" import render_field_error %}
     <form method="post" class="form">
       {{ form.csrf_token }}
       <h3 class="form-heading">

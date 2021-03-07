@@ -2,7 +2,7 @@
 {% block title %}Edit Artist{% endblock %}
 {% block content %}
   <div class="form-wrapper">
-    {% from "forms/_formhelpers.html" import render_field_error %}
+    {% from "forms/error_msg_handler.html" import render_field_error %}
     <form class="form" method="post" action="/artists/{{artist.id}}/edit">
     {{ form.csrf_token }}
       <h3 class="form-heading">Edit artist <em>{{ artist.name }}</em></h3>
