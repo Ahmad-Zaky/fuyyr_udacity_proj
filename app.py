@@ -149,6 +149,7 @@ def show_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
+  
   form = VenueForm()
   venue={
     "id": 1,
