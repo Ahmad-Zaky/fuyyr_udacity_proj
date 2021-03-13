@@ -113,11 +113,12 @@ class State(Enum):
 
     @classmethod
     def choices(states):
-        return [(choice, choice.value) for choice in states]
+        return [(choice.value, choice.value) for choice in states]
 
     @classmethod
     def coerce(state, item):
-        return state(int(item)) if not isinstance(item, state) else item
+        return item if isinstance(state(item), state) else None
+
 
 class Genre(Enum):
     Alternative = 'Alternative'
@@ -127,16 +128,16 @@ class Genre(Enum):
     Electronic = 'Electronic'
     Folk = 'Folk'
     Funk = 'Funk'
-    Hip_Hop = 'Hip-Hop'
-    Heavy_Metal = 'Heavy Metal'
+    HipHop = 'Hip Hop'
+    HeavyMetal = 'Heavy Metal'
     Instrumental = 'Instrumental'
     Jazz = 'Jazz'
-    Musical_Theatre = 'Musical Theatre'
+    MusicalTheatre = 'Musical Theatre'
     Pop = 'Pop'
     Punk = 'Punk'
-    R_and_B = 'R&B'
+    RandB = 'R&B'
     Reggae = 'Reggae'
-    Rock_n_Roll = 'Rock n Roll'
+    RocknRoll = 'Rock n Roll'
     Soul = 'Soul'
     Other = 'Other'
 
@@ -145,12 +146,11 @@ class Genre(Enum):
 
     @classmethod
     def choices(genres):
-        return [(choice, choice.value) for choice in genres]
-
+        return [(choice.value, choice.value) for choice in genres]
         
     @classmethod
     def coerce(genre, item):
-        return genre(int(item)) if not isinstance(item, genre) else item
+        return item if isinstance(genre(item), genre) else None
 
 class VenueForm(FlaskForm):
     name = StringField(
@@ -175,7 +175,7 @@ class VenueForm(FlaskForm):
         # TODO implement enum restriction
         'genres', validators=[DataRequired()],
         choices=Genre.choices(),
-        coerce=Genre.coerce 
+        coerce=Genre.coerce
     )
     website = StringField(
         'website', validators=[DataRequired()]
