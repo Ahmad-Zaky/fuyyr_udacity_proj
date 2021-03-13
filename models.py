@@ -1,8 +1,5 @@
-
-from enum import unique
 from app import db
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.orm import backref
 from sqlalchemy import UniqueConstraint
 
 #----------------------------------------------------------------------------#
