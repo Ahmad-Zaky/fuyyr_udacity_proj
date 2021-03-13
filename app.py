@@ -121,7 +121,7 @@ def show_venue(venue_id):
     data={
       "id": venue_id,
       "name": venue.name,
-      "genres": venue.genres.lstrip('{').rstrip('}').split(','),
+      "genres": venue.genres.replace("\"","").lstrip('{').rstrip('}').split(','),
       "address": venue.address,
       "city": venue.city,
       "state": venue.state,
@@ -443,7 +443,7 @@ def show_artist(artist_id):
     data={
       "id": artist_id,
       "name": artist.name,
-      "genres": artist.genres.lstrip('{').rstrip('}').split(','),
+      "genres": artist.genres.replace("\"","").lstrip('{').rstrip('}').split(','),
       "city": artist.city,
       "state": artist.state,
       "phone": artist.phone,
