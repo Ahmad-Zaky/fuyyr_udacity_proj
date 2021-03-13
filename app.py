@@ -425,14 +425,15 @@ def show_artist(artist_id):
   # artist = Artist.query.get(artist_id)
   artistShows = Artist.query.filter_by(id=artist_id).join(Show, isouter=True).add_columns(Show.venue_id, Show.start_time).all()
   
-  artist = artistShows[0][0]
-  shows = [{
-    'venue':Venue.query.get(shows_venue_id),
-    'start_time':shows_start_time
-   } for _, shows_venue_id, shows_start_time in artistShows if shows_venue_id  and shows_start_time]
+  if artistShows:
+    
+    artist = artistShows[0][0]
+    shows = [{
+      'venue':Venue.query.get(shows_venue_id),
+      'start_time':shows_start_time
+    } for _, shows_venue_id, shows_start_time in artistShows if shows_venue_id  and shows_start_time]
 
 
-  if artist or shows:
     postShows = [ {
       'venue_id': show['venue'].id,
       'venue_name': show['venue'].name,
