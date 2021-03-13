@@ -422,23 +422,30 @@ def search_artists():
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  artist = Artist.query.get(artist_id)
-  shows = Show.query.filter_by(artist_id=artist_id).all()
+  # artist = Artist.query.get(artist_id)
+  artistShows = Artist.query.filter_by(id=artist_id).join(Show, isouter=True).add_columns(Show.venue_id, Show.start_time).all()
+  
+  artist = artistShows[0][0]
+  shows = [{
+    'venue':Venue.query.get(shows_venue_id),
+    'start_time':shows_start_time
+   } for _, shows_venue_id, shows_start_time in artistShows if shows_venue_id  and shows_start_time]
+
 
   if artist or shows:
     postShows = [ {
-      'venue_id': show.venue.id,
-      'venue_name': show.venue.name,
-      'venue_image_link': show.venue.image_link,
-      'start_time': show.start_time.strftime('%Y-%m-%d %H:%M')
-    } for show in shows if show.start_time < d.now()]
+      'venue_id': show['venue'].id,
+      'venue_name': show['venue'].name,
+      'venue_image_link': show['venue'].image_link,
+      'start_time': show['start_time'].strftime('%Y-%m-%d %H:%M')
+    } for show in shows if show['start_time'] < d.now()]
 
     upcommingShows = [ {
-      'venue_id': show.venue.id,
-      'venue_name': show.venue.name,
-      'venue_image_link': show.venue.image_link,
-      'start_time': show.start_time.strftime('%Y-%m-%d %H:%M')
-    } for show in shows if show.start_time > d.now()]  
+      'venue_id': show['venue'].id,
+      'venue_name': show['venue'].name,
+      'venue_image_link': show['venue'].image_link,
+      'start_time': show['start_time'].strftime('%Y-%m-%d %H:%M')
+    } for show in shows if show['start_time'] > d.now()]  
 
     data={
       "id": artist_id,
